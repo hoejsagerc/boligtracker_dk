@@ -1,0 +1,46 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "db_password": {
+            "value": "P!ssw0rd1234"
+        },
+        "db_username": {
+            "value": "hoejsagerc"
+        },
+        "queueConnectionString": {
+            "value": "DefaultEndpointsProtocol=https;AccountName=saboligtracker;AccountKey=tRzTYqjh1U+Pvmhkj9TTqMRz1lCBAvA7ypDtN2z5FfwihGyCKKo6IrEEiuLU5YgcC1IjnDwyqJOz+AStH7Ma1A==;EndpointSuffix=core.windows.net"
+        },
+        "queueName": {
+            "value": "schedules"
+        },
+        "acr_password": {
+            "value": "CRMG9n=hYZcT63i7jjZIodOlydTNgSsK"
+        },
+        "db_Name": {
+            "value": "dev_db"
+        },
+        "db_Host": {
+            "value": "sql-dev-01.mysql.database.azure.com"
+        },
+        "appEnvironmentName": {
+            "value": "cae-prod-boligtracker"
+        },
+        "containerRegistryName": {
+            "value": "acrboligtracker"
+        },
+        "name": {
+            "value": "boligtrackerschtrigger"
+        },
+        "containerTag": {
+            "value": "latest"
+        },
+        "tags": {
+            "value": {
+                "createdBy": "pipeline",
+                "env": "production",
+                "product": "boligtracker"
+            }
+        }
+    }
+}

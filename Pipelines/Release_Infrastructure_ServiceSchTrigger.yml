@@ -1,0 +1,100 @@
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:  
+    - Infrastructure/Azure/Services/sch_trigger
+
+variables:
+- name: resourceGroup
+  value: "rg-prod-boligtracker"
+- name: containerTag
+  value: "latest"
+
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: QA
+    displayName: 'QA'
+    jobs:
+    - job: Checkout
+      steps:
+      - checkout: self
+
+    - job: Linting
+      displayName: 'Linting the Bicep Code'
+      steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'sp-hvorkanvibo'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          workingDirectory: '$(Build.SourcesDirectory)/Infrastructure/Azure/Services/sch_trigger'
+          inlineScript: 'az bicep build --file ./sch_trigger.bicep'
+
+    - job: Validating
+      displayName: 'Validating Bicep Code'
+      dependsOn: Linting
+      steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'sp-hvorkanvibo'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          workingDirectory: '$(Build.SourcesDirectory)/Infrastructure/Azure/Services/sch_trigger'
+          inlineScript: | 
+            az deployment group validate `
+                --resource-group $(resourceGroup) `
+                --template-file ./sch_trigger.bicep `
+                --parameters ./parameters.json `
+                acr_password=${env:ACR_PASSWORD} `
+                db_password=${env:DB_PASSWORD} `
+                db_username=${env:DB_USERNAME}
+
+    - job: WhatIf
+      displayName: 'Deployment overview'
+      dependsOn: Validating
+      steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'sp-hvorkanvibo'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          workingDirectory: '$(Build.SourcesDirectory)/Infrastructure/Azure/Services/sch_trigger'
+          inlineScript: | 
+            az deployment group validate `
+                --resource-group $(resourceGroup) `
+                --template-file ./sch_trigger.bicep `
+                --parameters ./parameters.json `
+                acr_password=${env:ACR_PASSWORD} `
+                db_password=${env:DB_PASSWORD} `
+                db_username=${env:DB_USERNAME}
+
+
+  - stage: Release
+    displayName: 'Release'
+    jobs:
+    - job: Checkout
+      steps:
+      - checkout: self
+
+    - job: BuildPlatform
+      displayName: 'Building Platform Infrastructure'
+      steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'sp-hvorkanvibo'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          workingDirectory: '$(Build.SourcesDirectory)/Infrastructure/Azure/Services/sch_trigger'
+          inlineScript: | 
+            az deployment group validate `
+                --resource-group $(resourceGroup) `
+                --template-file ./sch_trigger.bicep `
+                --parameters ./parameters.json `
+                acr_password=${env:ACR_PASSWORD} `
+                db_password=${env:DB_PASSWORD} `
+                db_username=${env:DB_USERNAME}

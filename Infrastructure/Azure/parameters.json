@@ -1,0 +1,37 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subnets": {
+            "value": [
+                {
+                    "name": "snet-storage",
+                    "properties": {
+                        "addressPrefix": "10.101.0.0/24",
+                        "delegations": [],
+                        "privateEndpointNetworkPolicies": "Disabled",
+                        "privateLinkServiceNetworkPolicies": "Enabled"
+                    }
+                },
+                {
+                    "name": "snet-data",
+                    "properties": {
+                        "addressPrefix": "10.101.1.0/24",
+                        "delegations": [],
+                        "privateEndpointNetworkPolicies": "Disabled",
+                        "privateLinkServiceNetworkPolicies": "Enabled"
+                    }
+                },
+                {
+                    "name": "snet-containers",
+                    "properties": {
+                        "addressPrefix": "10.101.2.0/23",
+                        "delegations": [],
+                        "privateEndpointNetworkPolicies": "Disabled",
+                        "privateLinkServiceNetworkPolicies": "Enabled"
+                    }
+                }
+            ]
+        }
+    }
+}

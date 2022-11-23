@@ -1,0 +1,85 @@
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:  
+    - Infrastructure/Azure/main.bicep
+    - Infrastructure/Azure/parameters.json
+    - Infrastructure/Azure/modules
+
+variables:
+- name: resourceGroup
+  value: "rg-prod-boligtracker"
+
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: QA
+    displayName: 'QA'
+    jobs:
+    - job: Linting
+      displayName: 'Linting the Bicep Code'
+      steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'sp-hvorkanvibo'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          workingDirectory: '$(Build.SourcesDirectory)/Infrastructure/Azure/'
+          inlineScript: 'az bicep build --file ./main.bicep'
+
+    - job: Validating
+      displayName: 'Validating Bicep Code'
+      dependsOn: Linting
+      steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'sp-hvorkanvibo'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          workingDirectory: '$(Build.SourcesDirectory)/Infrastructure/Azure/'
+          inlineScript: 'az deployment group validate --resource-group $(resourceGroup) --template-file ./main.bicep --parameters ./parameters.json'
+
+    - job: WhatIf
+      displayName: 'Deployment overview'
+      dependsOn: Validating
+      steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'sp-hvorkanvibo'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          workingDirectory: '$(Build.SourcesDirectory)/Infrastructure/Azure/'
+          inlineScript: 'az deployment group what-if --resource-group $(resourceGroup) --template-file ./main.bicep --parameters ./parameters.json'
+
+#    - job: Approval
+#      displayName: 'Waiting for approval'
+#      dependsOn: WhatIf
+#      pool: server
+#      steps:
+#      - task: ManualValidation@0
+#        name: 'BuildValidation'
+#        displayName: 'Manual pipeline Validation'
+#        timeoutInMinutes: 1440
+#        inputs:
+#          notifyUsers: |
+#            chho@edgemo.com
+#          instructions: 'Please validate the build configuration and resume - Last PR: $(System.PullRequest.PullRequestId)'
+#          onTimeout: 'reject'
+
+  - stage: Release
+    displayName: 'Release'
+    jobs:
+    - job: BuildPlatform
+      displayName: 'Building Platform Infrastructure'
+      steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'sp-hvorkanvibo'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          workingDirectory: '$(Build.SourcesDirectory)/Infrastructure/Azure/'
+          inlineScript: 'az deployment group create --resource-group $(resourceGroup) --template-file .\main.bicep --parameters ./parameters.json'

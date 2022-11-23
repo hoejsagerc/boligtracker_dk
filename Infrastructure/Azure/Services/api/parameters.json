@@ -1,0 +1,40 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "db_password": {
+            "value": "P!ssw0rd1234"
+        },
+        "db_username": {
+            "value": "hoejsagerc"
+        },
+        "acr_password": {
+            "value": "CRMG9n=hYZcT63i7jjZIodOlydTNgSsK"
+        },
+        "db_Name": {
+            "value": "dev_db"
+        },
+        "db_Host": {
+            "value": "sql-dev-01.mysql.database.azure.com:3306"
+        },
+        "appEnvironmentName": {
+            "value": "cae-prod-boligtracker"
+        },
+        "containerRegistryName": {
+            "value": "acrboligtracker"
+        },
+        "name": {
+            "value": "boligtrackerapi"
+        },
+        "containerTag": {
+            "value": "latest"
+        },
+        "tags": {
+            "value": {
+                "createdBy": "pipeline",
+                "env": "production",
+                "product": "boligtracker"
+            }
+        }
+    }
+}
